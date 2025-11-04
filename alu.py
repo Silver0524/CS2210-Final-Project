@@ -144,13 +144,21 @@ class Alu:
         """
         Bitwise AND
         """
-        pass  # replace pass with correct implementation
+        a = a & WORD_MASK
+        b = b & WORD_MASK
+        result = (a & b) & WORD_MASK
+        self._update_logic_flags(result)
+        return result
 
     def _or(self, a, b):
         """
         Bitwise OR
         """
-        pass  # replace pass with correct implementation
+        a = a & WORD_MASK
+        b = b & WORD_MASK
+        result = (a | b) & WORD_MASK
+        self._update_logic_flags(result)
+        return result
 
     def _shft(self, a, b):
         """
@@ -182,7 +190,10 @@ class Alu:
         return x
 
     def _update_logic_flags(self, result):
-        pass  # replace pass with correct implementation
+        if result & (1 << (WORD_SIZE - 1)):
+            self._flags |= N_FLAG
+        if result == 0:
+            self._flags |= Z_FLAG
 
     def _update_arith_flags_add(self, a, b, result):
         """
