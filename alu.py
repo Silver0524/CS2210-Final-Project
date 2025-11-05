@@ -135,8 +135,8 @@ class Alu:
         SUB
         """
         a = a & WORD_MASK
-        b = (~b + 1) & WORD_MASK
-        result = (a + b) & WORD_MASK
+        b = b & WORD_MASK
+        result = (a + ((~b + 1) & WORD_MASK)) & WORD_MASK
         self._update_arith_flags_sub(a, b, result)
         return result
 
@@ -227,8 +227,10 @@ class Alu:
             self._flags |= N_FLAG
         if result == 0:
             self._flags |= Z_FLAG
-        # checks if a has to borrow in order to subtract. if it has to borrow, set carry flag
-        if a < b:                          
+        # checks if a has to borrow in order to subtract. if it does, don't set carry flag
+        if a > b:                          
+            self._flags |= C_FLAG
+        if a == b:
             self._flags |= C_FLAG
         sa, sb, sr = ((a >> (WORD_SIZE - 1)) & 1,
                       (b >> (WORD_SIZE - 1)) & 1,
