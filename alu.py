@@ -243,4 +243,15 @@ class Alu:
 
 
     def _update_shift_flags(self, result, bit_out):
-        pass  # replace pass with correct implementation
+        if result & (1 << (WORD_SIZE - 1)):
+            self._flags |= N_FLAG
+        if result == 0:
+            self._flags |= Z_FLAG
+        # lowkey don't need the first if statement but imma leave it there
+        if bit_out is not None:
+            if bit_out == 1:
+                self._flags |= C_FLAG
+        msb = (result >> (WORD_SIZE - 1)) & 1
+        # check if the msb changed after the shift operation
+        if msb != bit_out and bit_out is not None:
+            self._flags |= V_FLAG
