@@ -174,13 +174,15 @@ class Alu:
         # Replace these two lines with a complete implementation   !!DONE ALREADY REPLACED!!
         if b > 0:
             # Shift left
+            b = b % WORD_SIZE 
             bit_out = (a >> (WORD_SIZE - 1)) & 1
             result = (a << b) & WORD_MASK
-        elif b < 0:
+        if b < 0:
             # Shift right
-            bit_out = (a >>(WORD_SIZE-1)) & 1
-            result = (a >> -b) & WORD_MASK
-        else:
+            b = -b
+            bit_out = (a >>(b-1)) & 1
+            result = (a >> b) & WORD_MASK
+        if b == 0:
             # No shift
             bit_out = None
             result = a
@@ -255,5 +257,5 @@ class Alu:
                 self._flags |= C_FLAG
         msb = (result >> (WORD_SIZE - 1)) & 1
         # check if the msb changed after the shift operation
-        if msb != bit_out and bit_out is not None:
+        if msb == bit_out and bit_out:
             self._flags |= V_FLAG
