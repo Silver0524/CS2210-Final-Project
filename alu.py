@@ -223,7 +223,24 @@ class Alu:
             self._flags |= V_FLAG
 
     def _update_arith_flags_sub(self, a, b, result):
-        pass  # replace pass with correct implementation
+        if result & (1 << (WORD_SIZE - 1)):
+            self._flags |= N_FLAG
+        if result == 0:
+            self._flags |= Z_FLAG
+        # checks if a has to borrow in order to subtract. if it has to borrow, set carry flag
+        if a < b:                          
+            self._flags |= C_FLAG
+        sa, sb, sr = ((a >> (WORD_SIZE - 1)) & 1,
+                      (b >> (WORD_SIZE - 1)) & 1,
+                      (result >> (WORD_SIZE - 1)) & 1)
+        # checks if signs of a and b are different. basically saying a + (-b).
+        # this way if a and b have opposite signs, overflow can occur.
+        # if the sign of the result is the same as b, this means overflow occurred.
+        # this is because if the result goes over the word size, it binary wraps and 
+        # the sign will end up flipping to be the same as b.
+        if sa != sb and sr == sb:       
+            self._flags |= V_FLAG
+
 
     def _update_shift_flags(self, result, bit_out):
         pass  # replace pass with correct implementation
