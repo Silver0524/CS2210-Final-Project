@@ -75,7 +75,7 @@ class Alu:
         """
         Decode control signal to determine operation.
         """
-        c = c & 0b111 # ensure only three bits are used
+        c = c & 0b111  # ensure only three bits are used
         match c:
             case 0b000:
                 self._op = "ADD"
@@ -181,8 +181,9 @@ class Alu:
         """
         a &= WORD_MASK  # Keep this line as is
         
-        msb = (b >> 15) & 1 # get the most significant bit 
-        shift_amount = (b & 0x7FFF) % WORD_SIZE # take the last 15 bits for shift amount and wraps it by the word size 
+        msb = (b >> 15) & 1  # get the most significant bit 
+        # take the last 15 bits for shift amount and wraps it by the word size
+        shift_amount = (b & 0x7FFF) % WORD_SIZE   
 
         if shift_amount == 0:
             bit_out = None
@@ -198,7 +199,6 @@ class Alu:
             bit_out = (a >> (shift_amount - 1)) & 1
             result = (a >> shift_amount) & WORD_MASK
          
-
         # Keep these last two lines as they are
         self._update_shift_flags(result, bit_out)
         return result
@@ -256,7 +256,6 @@ class Alu:
         # the sign will end up flipping to be the same as b.
         if sa != sb and sr == sb:       
             self._flags |= V_FLAG
-
 
     def _update_shift_flags(self, result, bit_out):
         # Negative Flag
