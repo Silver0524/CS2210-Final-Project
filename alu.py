@@ -171,18 +171,22 @@ class Alu:
         """
         a &= WORD_MASK  # Keep this line as is
 
-        # Replace these two lines with a complete implementation   !!DONE ALREADY REPLACED!!
+
+        # These lines fix the last test case but break test case "SHFT: 4660, 32768" 
+        #if b & 0x8000:
+        #    b -= 0x10000
+        
         if b > 0:
             # Shift left
             b = b % WORD_SIZE 
             bit_out = (a >> (WORD_SIZE - 1)) & 1
             result = (a << b) & WORD_MASK
-        if b < 0:
+        elif b < 0:
             # Shift right
-            b = -b
+            b = -b % WORD_SIZE
             bit_out = (a >>(b-1)) & 1
             result = (a >> b) & WORD_MASK
-        if b == 0:
+        else:
             # No shift
             bit_out = None
             result = a
@@ -247,14 +251,13 @@ class Alu:
 
 
     def _update_shift_flags(self, result, bit_out):
+        
         if result & (1 << (WORD_SIZE - 1)):
             self._flags |= N_FLAG
         if result == 0:
             self._flags |= Z_FLAG
-        # lowkey don't need the first if statement but imma leave it there
-        if bit_out is not None:
-            if bit_out == 1:
-                self._flags |= C_FLAG
+        if bit_out:
+            self._flags |= C_FLAG
         msb = (result >> (WORD_SIZE - 1)) & 1
         # check if the msb changed after the shift operation
         if msb == bit_out and bit_out:
