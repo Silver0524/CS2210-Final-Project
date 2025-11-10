@@ -180,26 +180,24 @@ class Alu:
         last bit shifted out. This is used to set the carry flag.
         """
         a &= WORD_MASK  # Keep this line as is
-
-
-        # These lines fix the last test case but break test case "SHFT: 4660, 32768" 
-        #if b & 0x8000:
-        #    b -= 0x10000
         
-        if b > 0:
-            # Shift left
-            b = b % WORD_SIZE 
-            bit_out = (a >> (WORD_SIZE - 1)) & 1
-            result = (a << b) & WORD_MASK
-        elif b < 0:
-            # Shift right
-            b = -b % WORD_SIZE
-            bit_out = (a >>(b-1)) & 1
-            result = (a >> b) & WORD_MASK
-        else:
-            # No shift
+        msb = (b >> 15) & 1 # get the most significant bit 
+        shift_amount = (b & 0x7FFF) % WORD_SIZE # take the last 15 bits for shift amount and wraps it by the word size 
+
+        if shift_amount == 0:
             bit_out = None
             result = a
+
+        elif msb == 0:
+            # Shift left
+            bit_out = (a >> (WORD_SIZE - shift_amount)) & 1
+            result = (a << shift_amount) & WORD_MASK
+
+        else:
+            # Shift right
+            bit_out = (a >> (shift_amount - 1)) & 1
+            result = (a >> shift_amount) & WORD_MASK
+         
 
         # Keep these last two lines as they are
         self._update_shift_flags(result, bit_out)
@@ -261,13 +259,17 @@ class Alu:
 
 
     def _update_shift_flags(self, result, bit_out):
+        # Negative Flag
         if result & (1 << (WORD_SIZE - 1)):
             self._flags |= N_FLAG
+        # Zero Flag
         if result == 0:
             self._flags |= Z_FLAG
-        if bit_out:
+        # Carry Flag
+        if bit_out == 1:
             self._flags |= C_FLAG
+        # Overflow Flag
         msb = (result >> (WORD_SIZE - 1)) & 1
         # check if the msb changed after the shift operation
-        if msb == bit_out and bit_out:
+        if msb == bit_out and bit_out == 1:
             self._flags |= V_FLAG
