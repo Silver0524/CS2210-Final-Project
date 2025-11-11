@@ -185,6 +185,7 @@ class Alu:
         # take the last 15 bits for shift amount and wraps it by the word size
         shift_amount = (b & 0x7FFF) % WORD_SIZE   
 
+        # obvious
         if shift_amount == 0:
             bit_out = None
             result = a
