@@ -2,6 +2,10 @@
 This is the instruction set for our CPU---Catamount processing unit.
 It supports only a small set of instructions.
 
+This ISA commits the Catamount PU to a 16-bit address space, word-aligned
+accesses, signed-offset addressing, and a linear memory model where all
+effective-address computations happen in 16-bit two's-complement arithmetic.
+
 CS 2210 Computer Organization
 Clayton Cafiero <cbcafier@uvm.edu>
 
@@ -183,19 +187,19 @@ ISA = {
         'immediate': True,
         'branch': True
     },
-    'CALL': {
-        'opcode': 0xD,
-        'format': 'B',
-        'variant': 'link',
-        'fields': ['opcode(4)', 'offset(8)', 'zero(4)'],
-        'semantics': 'Push (PC + 2); PC <-- PC + signextend(offset8)',
-        'description': 'Call subroutine at address given by PC + signed 8-bit immediate. '
-                       'Return address (PC + 2) is pushed onto stack.',
-        'register_write': False,  # writes directly to PC, not general-purpose register
-        'memory_write': False,
-        'alu': True,
-        'immediate': True,  # offset
-        'branch': True
+    "CALL": {
+        "opcode": 0xD,
+        "format": "B",
+        "variant": "link",
+        "fields": ["opcode(4)", "offset(8)", "zero(4)"],
+        "semantics": "Push (PC + 1); PC <-- PC + signextend(offset8)",  # Changed 2025-11-11
+        "description": "Call subroutine at address given by PC + signed 8-bit immediate. "
+        "Return address (PC + 1) is pushed onto stack.",  # memory is word addressable
+        "register_write": False,  # writes directly to PC, not general-purpose register
+        "memory_write": False,
+        "alu": True,
+        "immediate": True,  # offset
+        "branch": True,
     },
     'RET': {
         'opcode': 0xE,
@@ -311,18 +315,18 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
             self.rd = (word >> 9) & 0x7
             self.ra = (word >> 6) & 0x7
             self.imm = word & 0x3F
-            self.zero = 0                     # no zero padding
-        elif fmt == 'M':
-            self.rd = (word >> 9) & 0x7
-            self.ra = (word >> 6) & 0x7
-            self.addr = word & 0x3F           # 63 (6 bits)
-            self.zero = 0                     # no zero padding
-        elif self.mnem == 'CALL':             # added 2025-10-31
-            self.imm = (word >> 4) & 0xFF
-            self.zero = word & 0xF            # 4-bit zero padding
-        elif self.mnem in ('RET', 'HALT'):    # added 2025-10-31
-            self.zero = word & 0xFFF          # 12-bit zero padding
-        elif self.mnem == 'B':                # added 2025-11-01
+            self.zero = 0  # no zero padding
+        elif fmt == "M":
+            # Fixed order of operands 2025-11-11. Students need to know.
+            if self.mnem == "STORE":
+                self.ra = (word >> 9) & 0x7  # source/data register
+                self.rb = (word >> 6) & 0x7  # base register
+            else:  # LOAD
+                self.rd = (word >> 9) & 0x7  # destination register
+                self.ra = (word >> 6) & 0x7  # base register
+            self.addr = word & 0x3F  # 63 (6 bits)
+            self.zero = 0  # no zero padding
+        elif self.mnem == "CALL":  # added 2025-10-31
             self.imm = (word >> 4) & 0xFF
             self.zero = word & 0xF            # 4-bit zero padding
         elif fmt == 'B':                      # B, BEQ and BNE

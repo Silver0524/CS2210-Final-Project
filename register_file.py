@@ -110,7 +110,7 @@ class RegisterFile:
             - "Cannot write; no destination specified!"
             - "Cannot write: no data!"
 
-        respecively.
+        respectively.
 
         Check bounds on `rd`.
         """
