@@ -30,7 +30,7 @@ class Memory:
         try:
             assert 0 <= address < (1 << WORD_SIZE)
         except:
-            raise ValueError(f"Address {address:#06x} out of range.")
+            raise ValueError(f"Address out of range.")
 
     def write_enable(self, b):
         # Make sure `b` is a Boolean (hint: use `isinstance()).
@@ -39,7 +39,7 @@ class Memory:
         try:
             assert isinstance(b, bool)
         except:
-            raise TypeError("write_enable argument must be Boolean")
+            raise TypeError("Write_enable argument must be Boolean")
         self._write_enable = b
 
     def read(self, addr):
