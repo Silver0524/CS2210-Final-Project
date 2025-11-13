@@ -30,7 +30,7 @@ class Register:
 
     def read(self):
         # Just a getter for value. Replace `pass` below.
-        pass
+        return self.value
 
     def write(self, value):
         # Registers themselves don't know about write enable. It's the register
@@ -38,7 +38,12 @@ class Register:
         # should reject values that are too wide (too many bits). Use class
         # constants here, and raise `ValueError` on bad value, otherwise set
         # the value field. Replace `pass` below.
-        pass
+        try:
+            assert self.MIN_VALUE <= value <= self.MAX_VALUE
+            self.value = value
+        except:
+            raise ValueError(f"Value out of range.")
+        
 
     def __repr__(self):
         return f"{self.name}: {self.value:04X}"
@@ -57,7 +62,10 @@ class RegisterFile:
         # register objects and include them in a list `self.registers`. Note:
         # register objects should each get a unique name, R0, R1, R2, etc.
         # apart from their index in the list. Replace `pass` below.
-        pass
+        self.registers = []
+        for i in range(self.NUM_REGISTERS):
+            reg = Register(f"R{i}")
+            self.registers.append(reg)
 
     def _check_index(self, idx):
         """
@@ -67,7 +75,10 @@ class RegisterFile:
         # Make sure `idx` is in the desired range, otherwise raise an
         # `IndexError` with message "Register index out of bounds!" This
         # method needn't have an explicit return. Replace `pass` below.
-        pass
+        try:
+            assert 0 <= idx < self.NUM_REGISTERS
+        except:
+            raise IndexError("Register index out of bounds!")
 
     def _read(self, ra, rb):
         """
