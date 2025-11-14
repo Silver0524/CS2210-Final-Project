@@ -97,14 +97,28 @@ class RegisterFile:
         value of `rb`).
 
         """
+        if (ra is None) and (rb is None):
+            raise TypeError("Cannot read; no source register(s) specified!")
+        elif (ra is None) and (rb is not None):
+            raise TypeError("Cannot read; single register read should specify `ra`!")
+        elif (rb is None) and (ra is not None):
+            self._check_index(ra)
+            val_a = self.registers[ra].read()
+            return (val_a, None)
+        else:
+            self._check_index(ra)
+            self._check_index(rb)
+            val_a = self.registers[ra].read()
+            val_b = self.registers[rb].read()
+            return (val_a, val_b)
+        
         # Make sure that we have correct operand(s) to select register(s) from
         # which we'd like to read. Raise `TypeError` as needed. We have two
         # "good" scenarios: `ra` provided but `rb` is `None`, or both `ra` and
         # `rb` is specified. This method should call `_check_index()` as needed
         # to ensure we have valid indices. It should *always* return a tuple,
         # the first element of which is the value at `ra`, the second element
-        # of which is the value at `rb` or `None`. Replace `pass` below.
-        pass
+        # of which is the value at `rb` or `None`.
 
     def _write(self, rd, data):
         """This is called if `write_enable` is `True`. This is how we detect
@@ -125,14 +139,23 @@ class RegisterFile:
 
         Check bounds on `rd`.
         """
+        if (rd is None) and (data is None):
+            raise TypeError("Cannot write; no destination and no data specified!")
+        elif (data is None) and (rd is not None):
+            raise TypeError("Cannot write: no data!")
+        elif (rd is None) and (data is not None):
+            raise TypeError("Cannot write; no destination specified!")
+        else:
+            self._check_index(rd)
+            self.registers[rd].write(data)
+
         # This code should only be reachable from `execute()`. `execute()` will
         # ensure that `write_enable` has been asserted. Accordingly, we need to
         # ensure that both `rd` and `data` are supplied. If either is `none`,
         # this method should raise a `TypeError`. If both are supplied, this
         # method should call `_check_index()` to ensure index is good. If so,
         # it should call `write()` on the appropriate register, as selected by
-        # `rd`. Replace `pass` below.
-        pass
+        # `rd`.
 
     def execute(self, rd=None, ra=None, rb=None, data=None, write_enable=False):
         """
@@ -152,7 +175,6 @@ class RegisterFile:
         # Notice that this expects a member field `registers`, a list.
         vals = [str(r) for r in self.registers]
         return "\n".join(vals)
-
 
 if __name__ == "__main__":
 
