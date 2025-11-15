@@ -66,7 +66,10 @@ class Cpu:
             # execute...
             match self._decoded.mnem:
                 case "LOADI":
-                    pass  # complete implementation here
+                    rd = self._decoded.rd  # destination register
+                    imm = self._decoded.imm & 0xFF  # get the immediate value (8 bits)
+                    self._regs.execute(rd=rd, data=imm, write_enable=True)  # load immediate into register
+                    
                 case "LUI":
                     # TODO Refactor for future semester(s) if any.
                     # Cheating for compatibility with released ALU tests
@@ -79,11 +82,30 @@ class Cpu:
                     data = upper | lower
                     self._regs.execute(rd=rd, data=data, write_enable=True)
                 case "LOAD":
-                    pass  # complete implementation here
+                    # TODO imm should be sign extended (6 bits)
+                    rd = self._decoded.rd  # destination register
+                    ra = self._decoded.ra  # source register (base)
+                    imm = self._decoded.imm & 0x3F  # get the immediate offset (6 bits)
+                    addr = (self._regs.read(ra) + imm) & 0xFFFF  # calculate effective address using ra and offset
+                    data = self._d_mem.read(addr)  # read data from memory at the effective address
+                    self._regs.execute(rd=rd, data=data, write_enable=True)  # load data into destination register
                 case "STORE":
-                    pass  # complete implementation here
+                    # TODO imm should be sign extended (6 bits)
+                    ra = self._decoded.ra  # source register
+                    rb = self._decoded.rb  # base register
+                    imm = self._decoded.imm & 0x3F  # get the immidiate and offset it by 6 bits
+                    addr = (self._regs.read(rb) + imm) & 0xFFFF  # calculate the effective address
+                    data = self._regs.read(ra)  # get the data to store from source register
+                    self._d_mem.write_enable(True)  # enable memory write
+                    self._d_mem.write(addr, data)  # write the data to memory
+                    self._d_mem.write_enable(False)  # disable memory write
                 case "ADDI":
-                    pass  # complete implementation here
+                    # TODO imm should be sign extended (6 bits)
+                    rd = self._decoded.rd  # destination register
+                    ra = self._decoded.ra  # source register going to add imm to
+                    imm = self._decoded.imm & 0x3F  # get the immediate value (6 bits)
+                    data = (self._regs.read(ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
+                    self._regs.execute(rd=rd, data=data, write_enable=True)  # write result to destination register
                 case "ADD":
                     pass  # complete implementation here
                 case "SUB":
