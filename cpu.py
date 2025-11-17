@@ -107,32 +107,36 @@ class Cpu:
                     data = (self._regs.read(ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
                     self._regs.execute(rd=rd, data=data, write_enable=True)  # write result to destination register
                 case "ADD":
+                    self._alu.set_op("ADD")
                     rd = self._decoded.rd
                     ra = self._decoded.ra
                     rb = self._decoded.rb
                     op_a, op_b = self._regs.execute(ra=ra, rb=rb)
-                    result = self._alu._add(op_a, op_b)
+                    result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "SUB":
+                    self._alu.set_op("SUB")
                     rd = self._decoded.rd
                     ra = self._decoded.ra
                     rb = self._decoded.rb
                     op_a, op_b = self._regs.execute(ra=ra, rb=rb)
-                    result = self._alu._sub(op_a, op_b)
+                    result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "AND":
+                    self._alu.set_op("AND")
                     rd = self._decoded.rd
                     ra = self._decoded.ra
                     rb = self._decoded.rb
                     op_a, op_b = self._regs.execute(ra=ra, rb=rb)
-                    result = self._alu._and(op_a, op_b)
+                    result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "OR":
+                    self._alu.set_op("OR")
                     rd = self._decoded.rd
                     ra = self._decoded.ra
                     rb = self._decoded.rb
                     op_a, op_b = self._regs.execute(ra=ra, rb=rb)
-                    result = self._alu._or(op_a, op_b)
+                    result = self._alu.execute(op_a, op_b)
                     self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "SHFT":
                     self._alu.set_op("SHFT")
