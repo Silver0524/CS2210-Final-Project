@@ -107,13 +107,33 @@ class Cpu:
                     data = (self._regs.read(ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
                     self._regs.execute(rd=rd, data=data, write_enable=True)  # write result to destination register
                 case "ADD":
-                    pass  # complete implementation here
+                    rd = self._decoded.rd
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu._add(op_a, op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "SUB":
-                    pass  # complete implementation here
+                    rd = self._decoded.rd
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu._sub(op_a, op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "AND":
-                    pass  # complete implementation here
+                    rd = self._decoded.rd
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu._and(op_a, op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "OR":
-                    pass  # complete implementation here
+                    rd = self._decoded.rd
+                    ra = self._decoded.ra
+                    rb = self._decoded.rb
+                    op_a, op_b = self._regs.execute(ra=ra, rb=rb)
+                    result = self._alu._or(op_a, op_b)
+                    self._regs.execute(rd=rd, data=result, write_enable=True)
                 case "SHFT":
                     self._alu.set_op("SHFT")
                     rd = self._decoded.rd
