@@ -69,7 +69,6 @@ class Cpu:
                     rd = self._decoded.rd  # destination register
                     imm = self._decoded.imm & 0xFF  # get the immediate value (8 bits)
                     self._regs.execute(rd=rd, data=imm, write_enable=True)  # load immediate into register
-                    
                 case "LUI":
                     # TODO Refactor for future semester(s) if any.
                     # Cheating for compatibility with released ALU tests
@@ -101,10 +100,11 @@ class Cpu:
                     self._d_mem.write_enable(False)  # disable memory write
                 case "ADDI":
                     # TODO imm should be sign extended (6 bits)
+                    self._alu.set_op("ADD")
                     rd = self._decoded.rd  # destination register
                     ra = self._decoded.ra  # source register going to add imm to
                     imm = self._decoded.imm & 0x3F  # get the immediate value (6 bits)
-                    data = (self._regs.read(ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
+                    result = self._alu.execute(self._alu.execute(ra = ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
                     self._regs.execute(rd=rd, data=data, write_enable=True)  # write result to destination register
                 case "ADD":
                     self._alu.set_op("ADD")
