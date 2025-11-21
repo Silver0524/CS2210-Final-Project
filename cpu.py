@@ -104,11 +104,10 @@ class Cpu:
                     self._d_mem.write(addr, data)  # write the data to memory
                     self._d_mem.write_enable(False)  # disable memory write
                 case "ADDI":
-                    self._alu.set_op("ADD")
                     rd = self._decoded.rd  # destination register
                     ra = self._decoded.ra  # source register going to add imm to
                     imm = self.sext(self._decoded.imm, 6)  # get the immediate value (6 bits)
-                    result = self._alu.execute(self._alu.execute(ra = ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
+                    data = (self._regs.read(ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
                     self._regs.execute(rd=rd, data=data, write_enable=True)  # write result to destination register
                 case "ADD":
                     self._alu.set_op("ADD")
