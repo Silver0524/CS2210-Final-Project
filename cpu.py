@@ -189,7 +189,8 @@ class Cpu:
         self._decoded = Instruction(raw=self._ir)
 
     def _fetch(self):
-        pass  # complete implementation here
+        self._ir = self._i_mem.read(self._pc)
+        self._pc = (self._pc + 1) & 0xFFFF
 
     def load_program(self, prog):
         self._i_mem.load_program(prog)
