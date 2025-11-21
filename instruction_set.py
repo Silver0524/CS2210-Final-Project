@@ -21,23 +21,23 @@ v. 1.0.3 2025-11-11
 v. 1.0.4 2025-11-13
     - Picking nits, improving descriptions
 """
-from dataclasses import dataclass  # For Instruction class, below.
 
+from dataclasses import dataclass  # For Instruction class, below.
 
 # Instruction set specification
 ISA = {
-    'LOADI': {
-        'opcode': 0x0,
-        'format': 'I',
-        'variant': 'imm-only',
-        'fields': ['opcode(4)', 'rd(3)', 'imm(8)', 'zero(1)'],
-        'semantics': 'Rd <-- imm8 (zero-extended)',
-        'description': 'Load immediate 8-bit constant into Rd.',
-        'register_write': True,
-        'memory_write': False,
-        'alu': False,
-        'immediate': True,
-        'branch': False
+    "LOADI": {
+        "opcode": 0x0,
+        "format": "I",
+        "variant": "imm-only",
+        "fields": ["opcode(4)", "rd(3)", "imm(8)", "zero(1)"],
+        "semantics": "Rd <-- imm8 (zero-extended)",
+        "description": "Load immediate 8-bit constant into Rd.",
+        "register_write": True,
+        "memory_write": False,
+        "alu": False,
+        "immediate": True,
+        "branch": False,
     },
     "LUI": {
         "opcode": 0x1,
@@ -57,7 +57,8 @@ ISA = {
         "format": "M",
         "fields": ["opcode(4)", "rd(3)", "ra(3)", "imm(6)"],
         "semantics": "Rd <-- MEM[Ra + signextend(imm6)]",
-        "description": "Load word from memory at Ra + offset into Rd.",
+        "description": "Load word from memory at [Ra + offset] into Rd. "
+        "Note: When decoded imm is in field addr. TODO: Fix another time.",
         "register_write": True,
         "memory_write": False,
         "alu": False,  # assume aux adder for eff address
@@ -69,101 +70,101 @@ ISA = {
         "format": "M",
         "fields": ["opcode(4)", "ra(3)", "rb(3)", "imm(6)"],
         "semantics": "MEM[Rb + signextend(imm6)] <-- Ra",
-        "description": "Store Ra to memory at Rb + offset.",
+        "description": "Store Ra (data source) to memory at Rb (base) + offset.",
         "register_write": False,
         "memory_write": True,
         "alu": False,  # assume aux adder for eff address
         "immediate": False,
         "branch": False,
     },
-    'ADDI': {
-        'opcode': 0x4,
-        'format': 'I',
-        'variant': 'reg+imm',
-        'fields': ['opcode(4)', 'rd(3)', 'ra(3)', 'imm(6)'],
-        'semantics': 'Rd <-- Ra + signextend(imm6)',
-        'description': 'Add signed 6-bit immediate value to Ra.',
-        'register_write': True,
-        'memory_write': False,
-        'alu': True,
-        'immediate': True,
-        'branch': False
+    "ADDI": {
+        "opcode": 0x4,
+        "format": "I",
+        "variant": "reg+imm",
+        "fields": ["opcode(4)", "rd(3)", "ra(3)", "imm(6)"],
+        "semantics": "Rd <-- Ra + signextend(imm6)",
+        "description": "Add signed 6-bit immediate value to Ra.",
+        "register_write": True,
+        "memory_write": False,
+        "alu": True,
+        "immediate": True,
+        "branch": False,
     },
-    'ADD': {
-        'opcode': 0x5,
-        'format': 'R',
-        'fields': ['opcode(4)', 'rd(3)', 'ra(3)', 'rb(3)', 'zero(3)'],
-        'semantics': 'Rd <-- Ra + Rb',
-        'description': 'Add values in two registers.',
-        'register_write': True,
-        'memory_write': False,
-        'alu': True,
-        'immediate': False,
-        'branch': False
+    "ADD": {
+        "opcode": 0x5,
+        "format": "R",
+        "fields": ["opcode(4)", "rd(3)", "ra(3)", "rb(3)", "zero(3)"],
+        "semantics": "Rd <-- Ra + Rb",
+        "description": "Add values in two registers.",
+        "register_write": True,
+        "memory_write": False,
+        "alu": True,
+        "immediate": False,
+        "branch": False,
     },
-    'SUB': {
-        'opcode': 0x6,
-        'format': 'R',
-        'fields': ['opcode(4)', 'rd(3)', 'ra(3)', 'rb(3)', 'zero(3)'],
-        'semantics': 'Rd <-- Ra − Rb',
-        'description': 'Subtract value in Rb from value in Ra.',
-        'register_write': True,
-        'memory_write': False,
-        'alu': True,
-        'immediate': False,
-        'branch': False
+    "SUB": {
+        "opcode": 0x6,
+        "format": "R",
+        "fields": ["opcode(4)", "rd(3)", "ra(3)", "rb(3)", "zero(3)"],
+        "semantics": "Rd <-- Ra − Rb",
+        "description": "Subtract value in Rb from value in Ra.",
+        "register_write": True,
+        "memory_write": False,
+        "alu": True,
+        "immediate": False,
+        "branch": False,
     },
-    'AND': {
-        'opcode': 0x7,
-        'format': 'R',
-        'fields': ['opcode(4)', 'rd(3)', 'ra(3)', 'rb(3)', 'zero(3)'],
-        'semantics': 'Rd <-- Ra & Rb',
-        'description': 'Bitwise AND of two registers.',
-        'register_write': True,
-        'memory_write': False,
-        'alu': True,
-        'immediate': False,
-        'branch': False
+    "AND": {
+        "opcode": 0x7,
+        "format": "R",
+        "fields": ["opcode(4)", "rd(3)", "ra(3)", "rb(3)", "zero(3)"],
+        "semantics": "Rd <-- Ra & Rb",
+        "description": "Bitwise AND of two registers.",
+        "register_write": True,
+        "memory_write": False,
+        "alu": True,
+        "immediate": False,
+        "branch": False,
     },
-    'OR': {
-        'opcode': 0x8,
-        'format': 'R',
-        'fields': ['opcode(4)', 'rd(3)', 'ra(3)', 'rb(3)', 'zero(3)'],
-        'semantics': 'Rd <-- Ra | Rb',
-        'description': 'Bitwise OR of two registers.',
-        'register_write': True,
-        'memory_write': False,
-        'alu': True,
-        'immediate': False,
-        'branch': False
+    "OR": {
+        "opcode": 0x8,
+        "format": "R",
+        "fields": ["opcode(4)", "rd(3)", "ra(3)", "rb(3)", "zero(3)"],
+        "semantics": "Rd <-- Ra | Rb",
+        "description": "Bitwise OR of two registers.",
+        "register_write": True,
+        "memory_write": False,
+        "alu": True,
+        "immediate": False,
+        "branch": False,
     },
-    'SHFT': {
-        'opcode': 0x9,
-        'format': 'R',
-        'fields': ['opcode(4)', 'rd(3)', 'ra(3)', 'rb(3)', 'zero(3)'],
-        'semantics': 'if Rb & 0x8000: Rd <-- Ra >> (Rb & 0xF) '
-                     'else Rd <-- Ra << (Rb & 0xF)',
-        'description': 'Logical shift left or right depending on MSB of Rb. '
-                       'Absolute value of shift amount is limited to 15. '
-                       'We use the MSB of Rb to indicate direction of the shift.'
-                       'If MSB is zero, then left shift; otherwise, right shift.'
-                       'We use the lowest four bits of Rb for shift amount.',
-        'register_write': True,
-        'memory_write': False,
-        'alu': True,
-        'immediate': False,
-        'branch': False
+    "SHFT": {
+        "opcode": 0x9,
+        "format": "R",
+        "fields": ["opcode(4)", "rd(3)", "ra(3)", "rb(3)", "zero(3)"],
+        "semantics": "if Rb & 0x8000: Rd <-- Ra >> (Rb & 0xF) "
+        "else Rd <-- Ra << (Rb & 0xF)",
+        "description": "Logical shift left or right depending on MSB of Rb. "
+        "Absolute value of shift amount is limited to 15. "
+        "We use the MSB of Rb to indicate direction of the shift."
+        "If MSB is zero, then left shift; otherwise, right shift."
+        "We use the lowest four bits of Rb for shift amount.",
+        "register_write": True,
+        "memory_write": False,
+        "alu": True,
+        "immediate": False,
+        "branch": False,
     },
     "BEQ": {
         "opcode": 0xA,
         "format": "B",
         "variant": "cond",
-        "fields": ["opcode(4)", "offset(8)", "zero(4)"],
-        "semantics": "if Z == 1: PC <-- PC + signextend(offset8)",
+        "fields": ["opcode(4)", "imm(8)", "zero(4)"],
+        "semantics": "if Z == 1: PC <-- PC + signextend(imm8)",
         "description": "Branch if zero flag is set. "
         "Branches apply this operation to PC after fetch, not PC before "
         "fetch. Branch offsets are PC-relative to the instruction after the "
-        "branch (PC after fetch).",
+        "branch (PC after fetch). imm8 is offset.",
         "register_write": False,  # writes directly to PC, not GP register
         "memory_write": False,
         "alu": False,  # assume aux adder for eff address
@@ -174,12 +175,12 @@ ISA = {
         "opcode": 0xB,
         "format": "B",
         "variant": "cond",
-        "fields": ["opcode(4)", "offset(8)", "zero(4)"],
-        "semantics": "if Z == 0: PC <-- PC + signextend(offset8)",
+        "fields": ["opcode(4)", "imm(8)", "zero(4)"],
+        "semantics": "if Z == 0: PC <-- PC + signextend(imm8)",
         "description": "Branch if zero flag is clear. "
         "Branches apply this operation to PC after fetch, not PC before fetch. "
         "Branch offsets are PC-relative to the instruction after the branch "
-        "(PC after fetch).",
+        "(PC after fetch). imm8 is offset",
         "register_write": False,  # writes directly to PC, not GP register
         "memory_write": False,
         "alu": False,  # assume aux adder for eff address
@@ -190,12 +191,12 @@ ISA = {
         "opcode": 0xC,
         "format": "B",
         "variant": "uncond",
-        "fields": ["opcode(4)", "offset(8)", "zero(4)"],
-        "semantics": "PC <-- PC + signextend(offset8)",
+        "fields": ["opcode(4)", "imm(8)", "zero(4)"],
+        "semantics": "PC <-- PC + signextend(imm8)",
         "description": "Unconditional branch by signed 8-bit PC-relative "
         "offset. Branches apply this operation to PC after fetch, not PC "
         "before fetch. Branch offsets are PC-relative to the instruction "
-        "after the branch (PC after fetch).",
+        "after the branch (PC after fetch). imm8 is offset.",
         "register_write": False,  # writes directly to PC, not GP register
         "memory_write": False,
         "alu": False,
@@ -220,37 +221,38 @@ ISA = {
         "immediate": True,  # offset
         "branch": True,
     },
-    'RET': {
-        'opcode': 0xE,
-        'format': 'B',
-        'variant': 'ret',
-        'fields': ['opcode(4)', 'zero(12)'],
-        'semantics': 'Pop PC',
-        'description': 'Return from subroutine.',
-        'register_write': False,
-        'memory_write': False,
-        'alu': False,
-        'immediate': False,
-        'branch': True
+    "RET": {
+        "opcode": 0xE,
+        "format": "B",
+        "variant": "ret",
+        "fields": ["opcode(4)", "zero(12)"],
+        "semantics": "Pop PC",
+        "description": "Return from subroutine.",
+        "register_write": False,
+        "memory_write": False,
+        "alu": False,
+        "immediate": False,
+        "branch": True,
     },
-    'HALT': {
-        'opcode': 0xF,
-        'format': 'O',
-        'variant': 'halt',
-        'fields': ['opcode(4)', 'zero(12)'],
-        'semantics': 'stop execution',
-        'description': 'Halt CPU.',
-        'register_write': False,
-        'memory_write': False,
-        'alu': False,
-        'immediate': False,
-        'branch': False
-    }
+    "HALT": {
+        "opcode": 0xF,
+        "format": "O",
+        "variant": "halt",
+        "fields": ["opcode(4)", "zero(12)"],
+        "semantics": "stop execution",
+        "description": "Halt CPU.",
+        "register_write": False,
+        "memory_write": False,
+        "alu": False,
+        "immediate": False,
+        "branch": False,
+    },
 }
 
 
 # Reverse map for opcode lookup
-OPCODE_MAP = {v['opcode']: k for k, v in ISA.items()}
+OPCODE_MAP = {v["opcode"]: k for k, v in ISA.items()}
+
 
 def get_instruction_spec(key):
     """
@@ -263,7 +265,7 @@ def get_instruction_spec(key):
 
 
 @dataclass
-class Instruction:    # pylint: disable=too-many-instance-attributes
+class Instruction:  # pylint: disable=too-many-instance-attributes
     """
     Represents a single decoded instruction for the Catamount
     Processing Unit (CPU).
@@ -302,7 +304,7 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
         if not self.mnem and self.opcode:
             self.mnem = OPCODE_MAP.get(self.opcode, "???")
         if not self.opcode and self.mnem:
-            self.opcode = ISA[self.mnem]['opcode']
+            self.opcode = ISA[self.mnem]["opcode"]
 
     @property
     def format(self):
@@ -312,7 +314,7 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
         spec = ISA.get(self.mnem)
         if not spec:
             return None
-        return spec['format']
+        return spec["format"]
 
     def _decode_from_word(self, word):
         """
@@ -321,16 +323,16 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
         self.opcode = (word >> 12) & 0xF
         self.mnem = OPCODE_MAP.get(self.opcode, "???")
         fmt = self.format
-        if fmt == 'R':
+        if fmt == "R":
             self.rd = (word >> 9) & 0x7
             self.ra = (word >> 6) & 0x7
             self.rb = (word >> 3) & 0x7
-            self.zero = word & 0x7            # 4-bit zero padding
-        elif self.mnem in ('LOADI', 'LUI'):
+            self.zero = word & 0x7  # 4-bit zero padding
+        elif self.mnem in ("LOADI", "LUI"):
             self.rd = (word >> 9) & 0x7
-            self.imm = (word >> 1) & 0xFF     # fixed 2025-10-31
-            self.zero = word & 1              # 1-bit zero padding
-        elif self.mnem == 'ADDI':
+            self.imm = (word >> 1) & 0xFF  # fixed 2025-10-31
+            self.zero = word & 1  # 1-bit zero padding
+        elif self.mnem == "ADDI":
             self.rd = (word >> 9) & 0x7
             self.ra = (word >> 6) & 0x7
             self.imm = word & 0x3F
@@ -346,7 +348,7 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
             self.addr = word & 0x3F  # 63 (6 bits)
             self.zero = 0  # no zero padding
         elif self.mnem == "CALL":  # added 2025-10-31
-            self.imm = (word >> 4) & 0xFF
+            self.imm = (word >> 4) & 0xFF  # TODO: Should be labeled `offset`.
             self.zero = word & 0xF  # 4-bit zero padding
         elif self.mnem in ("RET", "HALT"):  # added 2025-10-31
             self.zero = word & 0xFFF  # 12-bit zero padding
@@ -356,7 +358,7 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
         else:
             raise ValueError(f"Unhandled instruction {self.mnem}")
         self.raw = word
-        try:                                  # added 2025-10-31
+        try:  # added 2025-10-31
             assert self.zero == 0
         except AssertionError:
             print(f"BAD zero padding on {self.mnem}!")
@@ -366,14 +368,14 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
             raise
 
     @property
-    def raw_bin(self):              # added 2025-11-02
+    def raw_bin(self):  # added 2025-11-02
         """
         Return pretty, zero padded binary representation of raw bytes.
         """
         return "0b" + bin(self.raw)[2:].zfill(16)
 
     @property
-    def raw_hex(self):              # added 2025-11-02
+    def raw_hex(self):  # added 2025-11-02
         """
         Return pretty, zero padded, upper-case hex representation of raw bytes.
         """
@@ -398,12 +400,12 @@ class Instruction:    # pylint: disable=too-many-instance-attributes
         elif self.mnem == "ADDI":
             s += f"rd=0x{self.rd:01X}, ra=0x{self.ra:01X}, imm=0x{self.imm:02X}, "
         elif self.mnem == "LOAD":
-            s += f"rd=0x{self.rd:01X}, ra=0x{self.ra:01X}, imm=0x{self.addr:03X}, "
+            s += f"rd=0x{self.rd:01X}, ra=0x{self.ra:01X}, addr=0x{self.addr:03X}, "
         elif self.mnem == "STORE":
-            s += f"ra=0x{self.ra:01X}, rb=0x{self.rb:01X}, imm=0x{self.addr:03X}, "
+            s += f"ra=0x{self.ra:01X}, rb=0x{self.rb:01X}, addr=0x{self.addr:03X}, "
         elif self.mnem == "CALL":
             s += f"imm=0x{self.imm:02X}, zero=0x{self.zero:01X}, "
-        elif self.mnem in ('RET', 'HALT'):
+        elif self.mnem in ("RET", "HALT"):
             s += f"zero=0x{self.zero:03X}, "
         elif fmt == "B":
             s += f"imm=0x{self.imm:02X}, zero=0x{self.zero:01X}, "

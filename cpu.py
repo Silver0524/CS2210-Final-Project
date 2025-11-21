@@ -54,6 +54,13 @@ class Cpu:
     def decoded(self):
         return self._decoded
 
+    def get_reg(self, r):
+        """
+        Public accessor (getter) for single register value.
+        Added 2025-11-15. Notify students.
+        """
+        return self._regs.execute(ra=r)[0]
+
     def tick(self):
         """
         Fetch-decode-execute
@@ -69,7 +76,6 @@ class Cpu:
                     rd = self._decoded.rd  # destination register
                     imm = self._decoded.imm & 0xFF  # get the immediate value (8 bits)
                     self._regs.execute(rd=rd, data=imm, write_enable=True)  # load immediate into register
-                    
                 case "LUI":
                     # TODO Refactor for future semester(s) if any.
                     # Cheating for compatibility with released ALU tests
@@ -163,7 +169,7 @@ class Cpu:
                     # push return address...
                     self._d_mem.write(self._sp, ret_addr, from_stack=True)
                     offset = self._decoded.imm
-                    self._pc += self.sext(offset)  # jump to target
+                    self._pc += self.sext(offset, 8)  # jump to target
                 case "RET":
                     # Get return address from memory via SP
                     # Increment SP
@@ -193,8 +199,10 @@ class Cpu:
 
     @staticmethod
     def sext(value, bits=16):
+        mask = (1 << bits) - 1
+        value &= mask
         sign_bit = 1 << (bits - 1)
-        return (value & (sign_bit - 1)) - (value & sign_bit)
+        return (value ^ sign_bit) - sign_bit
 
 
 # Helper function
