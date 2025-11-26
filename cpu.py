@@ -91,15 +91,15 @@ class Cpu:
                     rd = self._decoded.rd  # destination register
                     ra = self._decoded.ra  # source register (base)
                     imm = self.sext(self._decoded.imm, 6)  # get the immediate offset (6 bits)
-                    addr = (self._regs.read(ra) + imm) & 0xFFFF  # calculate effective address using ra and offset
+                    addr = (self._regs.execute(ra=ra)[0] + imm) & 0xFFFF  # calculate effective address using ra and offset
                     data = self._d_mem.read(addr)  # read data from memory at the effective address
                     self._regs.execute(rd=rd, data=data, write_enable=True)  # load data into destination register
                 case "STORE":
                     ra = self._decoded.ra  # source register
                     rb = self._decoded.rb  # base register
                     imm = self.sext(self._decoded.imm, 6)  # get the immidiate and offset it by 6 bits
-                    addr = (self._regs.read(rb) + imm) & 0xFFFF  # calculate the effective address
-                    data = self._regs.read(ra)  # get the data to store from source register
+                    addr = (self._regs.execute(ra=rb)[0] + imm) & 0xFFFF  # calculate the effective address
+                    data = self._regs.execute(ra=ra)[0]  # get the data to store from source register
                     self._d_mem.write_enable(True)  # enable memory write
                     self._d_mem.write(addr, data)  # write the data to memory
                     self._d_mem.write_enable(False)  # disable memory write
@@ -107,7 +107,7 @@ class Cpu:
                     rd = self._decoded.rd  # destination register
                     ra = self._decoded.ra  # source register going to add imm to
                     imm = self.sext(self._decoded.imm, 6)  # get the immediate value (6 bits)
-                    data = (self._regs.read(ra) + imm) & 0xFFFF  # perform addition and ensure 16-bit result
+                    data = (self._regs.execute(ra=ra)[0] + imm) & 0xFFFF  # perform addition and ensure 16-bit result
                     self._regs.execute(rd=rd, data=data, write_enable=True)  # write result to destination register
                 case "ADD":
                     self._alu.set_op("ADD")
@@ -154,9 +154,12 @@ class Cpu:
                         offset = self.sext(self._decoded.imm, 8)
                         self._pc += offset  # take branch
                 case "BNE":
-                    pass  # complete implementation here
+                    if not self._alu.zero:
+                        offset = self.sext(self._decoded.imm, 8)
+                        self._pc += offset  # take branch
                 case "B":
-                    pass  # complete implementation here
+                    offset = self.sext(self._decoded.imm, 8)
+                    self._pc += offset  # take branch
                 case "CALL":
                     self._sp -= 1  # grow stack downward
                     # PC is incremented immediately upon fetch so already
@@ -171,9 +174,11 @@ class Cpu:
                     # Get return address from memory via SP
                     # Increment SP
                     # Update PC
-                    pass  # complete implementation here
+                    ret_addr = self._d_mem.read(self._sp)
+                    self._sp += 1  # shrink stack upward
+                    self._pc = ret_addr
                 case "HALT":
-                    pass  # complete implementation here
+                    self._halt = True
                 case _:  # default
                     raise ValueError(
                         "Unknown mnemonic: " + str(self._decoded) + "\n" + str(self._ir)

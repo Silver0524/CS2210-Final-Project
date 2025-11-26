@@ -28,6 +28,10 @@ class Register:
         self.name = name
         self.value = 0
 
+    @property
+    def raw(self):
+        return self.value & 0xFFFF  # always unsigned
+
     def read(self):
         # Just a getter for value. Replace `pass` below.
         return self.value
@@ -44,9 +48,8 @@ class Register:
         except:
             raise ValueError(f"Value out of range.")
         
-
     def __repr__(self):
-        return f"{self.name}: {self.value:04X}"
+        return f"{self.raw:04X}"
 
 
 class RegisterFile:
