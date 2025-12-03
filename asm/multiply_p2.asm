@@ -4,9 +4,7 @@
 
 START:
     LOADI   R0, #3          ; Load base value of 3 R0 = 3
-    LOADI   R1, #1          ; Load the shift value into another register
-
-    
+    LOADI   R1, #1          ; Load the shift value into R1
     SHFT    R2, R0, R1      ; R2 = 6
     ADDI    R3, R2, #0      ; R3 = 6
     SHFT    R3, R3, R1      ; R3 = 12
