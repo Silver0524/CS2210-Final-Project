@@ -688,3 +688,4 @@ def test_and_resets_negative_flag():
     assert not c._alu.negative
     assert not c._alu.carry
     assert not c._alu.overflow
+
