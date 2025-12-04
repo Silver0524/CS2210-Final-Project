@@ -32,12 +32,12 @@ with open("asm/euclid.asm") as fh:
 
 load_a = -1  # sentinel
 load_b = -1  # sentinel
+# brittle!
 for num, line in enumerate(prog):
     if "LOADI R5" in line:
         load_a = num
     elif "LOADI R6" in line:
         load_b = num
-        break
 
 cases = [
     pytest.param("#2", "#2", 2, id="2,2: 2"),
@@ -67,3 +67,4 @@ def test_reg(immed_a, immed_b, expected):
 
     # At this point, CPU is halted, and we should have these values in registers:
     assert c.get_reg(5) == expected  # expected GCD
+

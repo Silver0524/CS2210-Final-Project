@@ -53,3 +53,4 @@ def test_reg(immed, r1, r4, r5):
     assert c.get_reg(1) == r1  # should match test value
     assert c.get_reg(4) == r4  # expected indicator
     assert c.get_reg(5) == r5  # expected constant
+
